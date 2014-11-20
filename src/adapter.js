@@ -38,18 +38,20 @@
 
     // Load everything specified in loadFiles
     for (var i = 0; i < karma.config.jspm.expandedFiles.length; i++) {
-        var modulePath = karma.config.jspm.expandedFiles[i];
-        var promise = System.import(extractModuleName(modulePath))
-            .catch(function(e){
-                setTimeout(function() {
-                    throw e;
-                });
+        var promise = Promise.resolve(karma.config.jspm.expandedFiles[i])
+            .then(function (modulePath) {
+                return System.import(extractModuleName(modulePath))
+                    .catch(function (e) {
+                        setTimeout(function() {
+                            throw e;
+                        });
+                    });
             });
         promises.push(promise);
     }
 
     // Promise comes from the es6_module_loader
-    Promise.all(promises).then(function(){
+    Promise.all(promises).then(function() {
         karma.start();
     });
 
